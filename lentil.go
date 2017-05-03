@@ -8,11 +8,15 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 type Beanstalkd struct {
-	conn   net.Conn
-	reader *bufio.Reader
+	conn         net.Conn
+	reader       *bufio.Reader
+	addr         string
+	redialPeriod time.Duration // Attempt re-dialling for this duration. time.Duration(-1) for forever
+	retryPeriod  time.Duration // Total retry period for any call.
 }
 
 // Size of the reader buffer. Increase to handle large message bodies
@@ -26,12 +30,22 @@ type Job struct {
 var Debug *os.File = nil
 
 func (this *Beanstalkd) send(format string, args ...interface{}) error {
-
 	if Debug != nil {
 		fmt.Fprintf(Debug, "(%v) -> ", this.conn)
 		fmt.Fprintf(Debug, format, args...)
 	}
-	_, err := fmt.Fprintf(this.conn, format, args...)
+
+	var err error
+	for i := 0; i <= int(this.retryPeriod.Seconds()); i++ {
+		_, err = fmt.Fprintf(this.conn, format, args...)
+		if err == nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+		if Debug != nil {
+			fmt.Fprintf(Debug, " retry no %d", i+1)
+		}
+	}
 	return err
 }
 
@@ -69,10 +83,36 @@ func (this *Beanstalkd) recvdata(data []byte) (int, error) {
 }
 
 // Dial opens a connection to beanstalkd. The format of addr is 'host:port', e.g '0.0.0.0:11300'.
-func Dial(addr string) (*Beanstalkd, error) {
-	this := new(Beanstalkd)
+// Optional arguments can be provided to specify a redialPeriod (Duration) and a retryPeriod (Duration)
+func Dial(addr string, args ...interface{}) (*Beanstalkd, error) {
+	redial := time.Duration(0)
+	retry := time.Duration(0)
+	if len(args) == 2 {
+		r, err := time.ParseDuration(args[0].(string))
+		if err != nil {
+			return nil, fmt.Errorf("Can't convert arg to time.Duration %s", err)
+		}
+		redial = r
+		r, err = time.ParseDuration(args[1].(string))
+		if err != nil {
+			return nil, fmt.Errorf("Can't convert arg2 to time.Duration %s", err)
+		}
+		retry = r
+	}
+	this := &Beanstalkd{
+		addr:         addr,
+		redialPeriod: redial,
+		retryPeriod:  retry,
+	}
+
 	var e error
-	this.conn, e = net.Dial("tcp", addr)
+	for i := 0; i <= int(this.redialPeriod.Seconds()); i++ {
+		this.conn, e = net.Dial("tcp", this.addr)
+		if e == nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 	if e != nil {
 		return nil, e
 	}
@@ -116,7 +156,7 @@ func (this *Beanstalkd) Ignore(tube string) (int, error) {
 	return watched, nil
 }
 
-// Use is for producers. 
+// Use is for producers.
 // Subsequent Put commands will put jobs into the tube specified by this command.
 // If no use command has been issued, jobs will be put into the tube named "default".
 func (this *Beanstalkd) Use(tube string) error {

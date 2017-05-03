@@ -45,6 +45,32 @@ func main() {
 }
 ```
 
+#### Connection and Call retries
+
+By default, Dial and any functions called on the connection will not retry.
+You can specify a retry period for both the Dial and other calls using arguments
+to the Dial() call.
+
+For instace, to retry the dial for 10 minutes and 
+retry any call (Put, Delete, Reserve) for 1 minute before returning
+an error, use:
+
+```
+func main() {
+	conn, e := lentil.Dial("0.0.0.0:11300", "10m", "1m")
+	if e != nil {
+		log.Fatal(e)
+	}
+	jobId, e := conn.Put(0, 0, 60, []byte("hello"))
+	if e != nil {
+		log.Fatal(e)
+	}
+	log.Printf("JOB ID: %d\n", jobId)
+}
+```
+Both Dial and Put() will retry every second for the given duration.
+
+
 ### Example consumer:
 ```go
 package main
