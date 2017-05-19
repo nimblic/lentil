@@ -9,7 +9,35 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/nimblic/lentil"
 )
+
+type BSD interface {
+	Bury(uint64, int) error
+	Delete(uint64) error
+	Ignore(string) (int, error)
+	Kick(int) (int, error)
+	ListTubeUsed() (string, error)
+	ListTubes() ([]string, error)
+	ListTubesWatched() ([]string, error)
+	PauseTube(string, int) error
+	Peek(uint64) (*lentil.Job, error)
+	PeekBuried() (*lentil.Job, error)
+	PeekDelayed() (*lentil.Job, error)
+	PeekReady() (*lentil.Job, error)
+	Put(int, int, int, []byte) (uint64, error)
+	Quit() error
+	Release(uint64, int, int) error
+	Reserve() (*lentil.Job, error)
+	ReserveWithTimeout(int) (*lentil.Job, error)
+	Stats() (map[string]string, error)
+	StatsJob(uint64) (map[string]string, error)
+	StatsTube(string) (map[string]string, error)
+	Touch(uint64) error
+	Use(string) error
+	Watch(string) (int, error)
+}
 
 type Beanstalkd struct {
 	conn         net.Conn
@@ -500,6 +528,11 @@ func (this *Beanstalkd) Quit() error {
 	if e != nil {
 		return e
 	}
+	return this.conn.Close()
+}
+
+// Closes the connection
+func (this *Beanstalkd) Close() error {
 	return this.conn.Close()
 }
 
