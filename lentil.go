@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nimblic/lentil"
+	"github.com/nutrun/lentil"
 )
 
 type BSD interface {
