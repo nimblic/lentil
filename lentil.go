@@ -9,8 +9,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/nutrun/lentil"
 )
 
 type BSD interface {
@@ -22,15 +20,15 @@ type BSD interface {
 	ListTubes() ([]string, error)
 	ListTubesWatched() ([]string, error)
 	PauseTube(string, int) error
-	Peek(uint64) (*lentil.Job, error)
-	PeekBuried() (*lentil.Job, error)
-	PeekDelayed() (*lentil.Job, error)
-	PeekReady() (*lentil.Job, error)
+	Peek(uint64) (*Job, error)
+	PeekBuried() (*Job, error)
+	PeekDelayed() (*Job, error)
+	PeekReady() (*Job, error)
 	Put(int, int, int, []byte) (uint64, error)
 	Quit() error
 	Release(uint64, int, int) error
-	Reserve() (*lentil.Job, error)
-	ReserveWithTimeout(int) (*lentil.Job, error)
+	Reserve() (*Job, error)
+	ReserveWithTimeout(int) (*Job, error)
 	Stats() (map[string]string, error)
 	StatsJob(uint64) (map[string]string, error)
 	StatsTube(string) (map[string]string, error)

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/nutrun/lentil"
+	"github.com/nimblic/lentil"
 	"log"
 	"os"
 )
