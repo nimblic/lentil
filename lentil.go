@@ -46,7 +46,7 @@ type Beanstalkd struct {
 }
 
 // Size of the reader buffer. Increase to handle large message bodies
-var ReaderSize = 4096 // bufio.defaultSize
+var ReaderSize = 65536 // bufio.defaultSize
 
 type Job struct {
 	Id   uint64
