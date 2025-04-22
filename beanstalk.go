@@ -28,7 +28,7 @@ type IBeanstalk interface {
 }
 
 type ILentil interface {
-	Dial(addr string, args ...interface{}) (IBeanstalk, error)
+	Dial(addr string, readerSize int, args ...interface{}) (IBeanstalk, error)
 }
 
 type Lentil struct{}
