@@ -142,7 +142,11 @@ func Dial(addr string, readerSize int, args ...interface{}) (*Beanstalkd, error)
 	if e != nil {
 		return nil, e
 	}
-	this.reader = bufio.NewReaderSize(this.conn, readerSize)
+	if readerSize <= 0 {
+		this.reader = bufio.NewReaderSize(this.conn, ReaderSize)
+	} else {
+		this.reader = bufio.NewReaderSize(this.conn, readerSize)
+	}
 	return this, nil
 }
 
