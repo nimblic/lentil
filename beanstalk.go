@@ -1,6 +1,6 @@
 package lentil
 
-//IBeanstalk is an interface to alllow queue DI and mocking.
+// IBeanstalk is an interface to alllow queue DI and mocking.
 type IBeanstalk interface {
 	Watch(tube string) (int, error)
 	Ignore(tube string) (int, error)
@@ -28,13 +28,13 @@ type IBeanstalk interface {
 }
 
 type ILentil interface {
-	Dial(addr string, args ...interface{}) (IBeanstalk, error)
+	Dial(addr string, readerSize int, args ...interface{}) (IBeanstalk, error)
 }
 
 type Lentil struct{}
 
-func (Lentil) Dial(addr string, args ...interface{}) (IBeanstalk, error) {
-	q, err := Dial(addr, args...)
+func (Lentil) Dial(addr string, readerSize int, args ...interface{}) (IBeanstalk, error) {
+	q, err := Dial(addr, readerSize, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -110,7 +110,7 @@ func (this *Beanstalkd) recvdata(data []byte) (int, error) {
 
 // Dial opens a connection to beanstalkd. The format of addr is 'host:port', e.g '0.0.0.0:11300'.
 // Optional arguments can be provided to specify a redialPeriod (Duration) and a retryPeriod (Duration)
-func Dial(addr string, args ...interface{}) (*Beanstalkd, error) {
+func Dial(addr string, readerSize int, args ...interface{}) (*Beanstalkd, error) {
 	redial := time.Duration(0)
 	retry := time.Duration(0)
 	if len(args) == 2 {
@@ -142,7 +142,7 @@ func Dial(addr string, args ...interface{}) (*Beanstalkd, error) {
 	if e != nil {
 		return nil, e
 	}
-	this.reader = bufio.NewReaderSize(this.conn, ReaderSize)
+	this.reader = bufio.NewReaderSize(this.conn, readerSize)
 	return this, nil
 }
 

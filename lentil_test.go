@@ -8,11 +8,11 @@ import (
 
 // Test assumes beanstalkd running on 0.0.0.0:11300
 func TestBeanstalk(t *testing.T) {
-	beanstalkd, e := Dial("0.0.0.0:11301")
+	beanstalkd, e := Dial("0.0.0.0:11301", ReaderSize)
 	if beanstalkd != nil || e == nil {
 		t.Error("Shouldn't have connected")
 	}
-	beanstalkd, e = Dial("0.0.0.0:11300")
+	beanstalkd, e = Dial("0.0.0.0:11300", ReaderSize)
 	if beanstalkd == nil || e != nil {
 		t.Fatal("Should have connected without errors. Is beanstalkd running on 0.0.0.0:11300?")
 	}
@@ -183,7 +183,7 @@ func TestBeanstalk(t *testing.T) {
 }
 
 func ExampleBeanstalkd() {
-	queue, e := Dial("0.0.0.0:11300")
+	queue, e := Dial("0.0.0.0:11300", ReaderSize)
 	if e != nil {
 		log.Fatal(e)
 	}
