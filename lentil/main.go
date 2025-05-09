@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/nimblic/lentil"
 	"log"
 	"os"
+
+	"github.com/nimblic/lentil"
 )
 
 var addr = flag.String("addr", "0.0.0.0:11300", "Beanstalkd address (host:port)")
@@ -29,7 +30,7 @@ func main() {
 	lentil.ReaderSize = 65536
 	flag.Parse()
 	log.SetFlags(0)
-	q, e := lentil.Dial(*addr)
+	q, e := lentil.Dial(*addr, 65536)
 	err(e)
 	if *listTubes {
 		tubes, e := q.ListTubes()
